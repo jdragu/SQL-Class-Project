@@ -1,0 +1,157 @@
+CREATE TABLE Customer
+(
+  CustomerID VARCHAR NOT NULL,
+  Customer_Name VARCHAR NOT NULL,
+  Email VARCHAR NOT NULL,
+  Phone VARCHAR NOT NULL,
+  PRIMARY KEY (CustomerID)
+);
+
+CREATE TABLE Supplier
+(
+  SupplierID VARCHAR NOT NULL,
+  Supplier_Name VARCHAR NOT NULL,
+  PRIMARY KEY (SupplierID)
+);
+
+CREATE TABLE Dept_Team
+(
+  TeamID VARCHAR NOT NULL,
+  DeptartmentID VARCHAR NOT NULL,
+  PRIMARY KEY (TeamID),
+  UNIQUE (DeptartmentID)
+);
+
+CREATE TABLE Project
+(
+  ProjectID VARCHAR NOT NULL,
+  Role VARCHAR NOT NULL,
+  TeamID VARCHAR NOT NULL,
+  CustomerID VARCHAR,
+  PRIMARY KEY (ProjectID, TeamID),
+  FOREIGN KEY (TeamID) REFERENCES Dept_Team(TeamID),
+  FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+CREATE TABLE Orders
+(
+  OrderID VARCHAR NOT NULL,
+  Order_Date DATE NOT NULL,
+  Confirmation_Date DATE NOT NULL,
+  Quantity NUMERIC NOT NULL,
+  CustomerID VARCHAR NOT NULL,
+  PRIMARY KEY (OrderID),
+  FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+CREATE TABLE Sale
+(
+  DeliveryDate DATE NOT NULL,
+  Carrier VARCHAR NOT NULL,
+  SalesTransactionID VARCHAR NOT NULL,
+  OrderID VARCHAR NOT NULL,
+  CustomerID VARCHAR NOT NULL,
+  PRIMARY KEY (SalesTransactionID),
+  FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+  FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+CREATE TABLE Location
+(
+  Country VARCHAR NOT NULL,
+  Region VARCHAR NOT NULL,
+  State VARCHAR,
+  City VARCHAR NOT NULL,
+  Address VARCHAR NOT NULL,
+  CustomerID VARCHAR NOT NULL,
+  SupplierID VARCHAR NOT NULL,
+  TeamID VARCHAR NOT NULL,
+  PRIMARY KEY (CustomerID, SupplierID, TeamID),
+  FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+  FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
+  FOREIGN KEY (TeamID) REFERENCES Dept_Team(TeamID)
+);
+
+CREATE TABLE Product
+(
+  SKU VARCHAR NOT NULL,
+  Product_Name VARCHAR NOT NULL,
+  Product_Family VARCHAR NOT NULL,
+  OrderID VARCHAR NOT NULL,
+  SupplierID VARCHAR NOT NULL,
+  PRIMARY KEY (SKU),
+  FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+  FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
+);
+
+CREATE TABLE Pricing
+(
+  Customer_Sales_Price NUMERIC NOT NULL,
+  SKU VARCHAR NOT NULL,
+  PRIMARY KEY (Customer_Sales_Price),
+  FOREIGN KEY (SKU) REFERENCES Product(SKU)
+);
+
+CREATE TABLE Employee
+(
+  EmployeeID VARCHAR NOT NULL,
+  FName VARCHAR NOT NULL,
+  LName VARCHAR NOT NULL,
+  Email VARCHAR NOT NULL,
+  Phone VARCHAR NOT NULL,
+  Address VARCHAR NOT NULL,
+  TeamID VARCHAR NOT NULL,
+  CustomerID VARCHAR NOT NULL,
+  Customer_Sales_Price NUMERIC NOT NULL,
+  Manages_EmployeeID VARCHAR,
+  PRIMARY KEY (EmployeeID),
+  FOREIGN KEY (TeamID) REFERENCES Dept_Team(TeamID),
+  FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+  FOREIGN KEY (Customer_Sales_Price) REFERENCES Pricing(Customer_Sales_Price),
+  FOREIGN KEY (Manages_EmployeeID) REFERENCES Employee(EmployeeID)
+);
+
+CREATE TABLE tracks
+(
+  EmployeeID VARCHAR NOT NULL,
+  OrderID VARCHAR NOT NULL,
+  PRIMARY KEY (EmployeeID, OrderID),
+  FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+  FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+);
+
+INSERT INTO Supplier(supplierid, supplier_name)
+VALUES ('DW982','Data Warehouse Co'),('P9282','Processor Inc'),('CS9348','Chipset Factory'),('T9823','Tech Inc');
+ 
+INSERT INTO dept_team(teamid, deptartmentid)
+VALUES ('Team Pear','Datacenter3235'),('Team Americas','MLDL2923'),('Team AOL','AIML9292'),('Team Ice','Engineers9302');
+ 
+INSERT INTO Customer (customerid, customer_name, email, phone)
+VALUES('A10391','Amy','amyc@company.com','9741027429'),
+('B9202','Fred Green','fredg@business.com','8519837854'),
+('D8023','Patricia Lee','patlee@inc.com','4739808543'),
+('C8029','Lily Mendez','lilym@organization.com','5039873692');
+ 
+INSERT INTO Orders(orderid, order_date, confirmation_date, quantity, customerid)
+VALUES ('A9230432','02/05/2022','02/06/2022',5,'A10391'),('G20382093','03/04/2022','03/11/2022',13,'B9202'),('H9283402','04/01/2022','04/01/2022',52,'D8023'),('J928302','06/01/2022','06/12/2022',7,'C8029');
+ 
+INSERT INTO Sale (deliverydate, carrier, salestransactionid, orderid, customerid)
+VALUES('2022-01-15','UPS','S983403','A9230432','A10391'),('2022-05-04','FedEx','S938203','G20382093','B9202'),('2022-03-14','USPS','S98502','H9283402','D8023'),('2022-07-24','FedEx','S9820532','J928302','C8029');
+ 
+INSERT INTO Product(sku, product_name, product_family, orderid, supplierid)
+VALUES('C630','Harryville C630 V2','Harryville','A9230432','DW982'),('A020','Grantpass A020 G1','Grantpass','G20382093','CS9348'),('X30-2039','Processor X30-2039 V8','General Processor','H9283402','P9282'),('C670','Harryville C670 V2','Harryville','J928302','T9823');
+ 
+INSERT INTO Pricing(customer_sales_price, sku)
+VALUES (42.00,'C630'),(103.00,'A020'),(23.00,'X30-2039'),(47.00,'C670');
+
+INSERT INTO Project(projectid, role, teamid, customerid)
+VALUES('Project A','AI/ML Engineering','Team AOL','A10391'),('Project B','ML/DL Engineering','Team Americas','B9202'),('Project C','DC Efficiency','Team Pear','C8029'),('Project D','Innovation Nation','Team Ice','D8023');
+
+INSERT INTO Location(country, region, state, city, address, customerid, supplierid, teamid)
+VALUES('USA','Americas','Oregon','Eugene','123 Duck Way','A10391','DW982','Team Pear'),('Romania','Transylvania','N/A','Sibiu','345 Dracula Court','B9202','P9282','Team Americas'),('Australia','Victoria','Boronia','Melbourne','456 Gday Way','C8029','CS9348','Team AOL'),('USA','Americas','California','Santa Clara','678 Intel Blvd','D8023','T9823','Team Ice');
+
+INSERT INTO Employee(employeeid, fname, lname, email, phone, address, teamid, customerid, customer_sales_price, manages_employeeid)
+VALUES('E8923','Sarah','Green','sgreen@intel.com','97103998292','234 Duck Rd','Team Pear','A10391','42.00','E93983'),('E98299','Greta','Fleet','gfleet@intel.com','5029389293','789 Color Rd','Team Americas','B9202','103.00','E8923'),('E93983','Ellie','Chu','ellchu@intel.com','98728309823','789 Road St','Team AOL','C8029',23.00,'E02902'),('E02902','Anna','Green','agreen@intel.com','78928379283','363 Howl St','Team Ice','D8023',47.00,'E98299');
+
+INSERT INTO tracks(employeeid, orderid)
+VALUES('E8923','A9230432'),('E98299','G20382093'),('E93983','H9283402'),('E02902','J928302');
