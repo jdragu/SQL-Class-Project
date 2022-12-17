@@ -1,0 +1,41 @@
+/*Find the names of all products with a price of less than $150  and that were sold in the USA.*/
+
+SELECT product_name, customer_sales_price
+FROM pricing pr, product pt, location l
+WHERE pr.sku = pt.sku
+AND l.supplierid = pt.supplierid
+AND customer_sales_price < 150
+AND country='USA'
+
+
+/*Find the quantity and corresponding product_name for products that were delivered by carrier “FedEx”.*/
+
+SELECT quantity, product_name
+FROM product p, orders o
+JOIN sale s ON o.orderid = s.orderid
+GROUP BY o.quantity, p.product_name, s.carrier, o.orderid, p.orderid
+HAVING carrier = 'FedEx'
+AND o.orderid = p.orderid
+
+
+*/Return first and last names of all employees and customers with an area code corresponding to Portland (i.e. 503- or 971-)*/
+*/Note: mistake made on this query, should have joined all tables selected via reference keys*/
+
+SELECT CONCAT(fname,' ',lname) AS PortlandAreaCodeNames
+FROM employee e
+WHERE e.phone LIKE '971%' OR e.phone LIKE '503%'
+UNION
+SELECT customer_name
+FROM customer c
+WHERE c.phone LIKE '971%' OR c.phone LIKE '503%'
+
+
+*/Return OrderID, Order_Date, Confirmation_Date, and the throughput time between Order_Date and Confirmation_Date for all orders which are placed in location “USA”.*/
+
+SELECT orderid, order_date, confirmation_date, order_date - confirmation_date AS throughputtime
+FROM orders o
+WHERE o.customerid IN (
+   SELECT o.customerid
+   FROM orders o, location l
+   WHERE o.customerid = l.customerid
+   AND l.country='USA')
